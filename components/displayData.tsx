@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { use, useState } from "react"
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TextInput, View,Button, Pressable, ScrollView } from 'react-native';
 import { getWeather } from "../api/getData";
@@ -30,11 +30,30 @@ export type WeatherResponse={
 }
 
 export default function weatherScreen(){
-    const [city,setCity] = useState("")
-    const [weather,setWeather] = useState<Weather>()
- 
+
+
+  const [city,setCity] = useState("")
+  const [weather,setWeather] = useState<Weather>()
+  const [temp,setTemp]=useState("")
+  const [windSpeed,setWindSpeed]=useState("")
+  const [country,setCountry]=useState("")
+  const[maxTemp,setmaxTemp] = useState("")
+  const[minTemp,setminTemp] = useState("")
+
+
+  const weatherApiCall=async(city:string)=>{
+      const response = await getWeather(city)
+      if(response != null){
+        setTemp(response.main.temp.toString())
+        setWindSpeed(response.wind.speed.toString())
+        setCountry(response.sys.country)
+        setmaxTemp(response.main.temp_max.toString())
+        setminTemp(response.main.temp_min.toString())
+      }
+
+    }
     return(
-        <View>
+        <View style={styles.container}>
             <View>
                 <TextInput style={styles.input}
                 value={city}
@@ -46,17 +65,18 @@ export default function weatherScreen(){
                 <Button
                 title="search"
                 onPress={()=>{
-                    getWeather
+                  console.log('sss')
+                    weatherApiCall(city)
                 }}
                 >
                     
                 </Button>
             </View>
-            <View>
-                <Text>Maa/kaupunki: {weather?.country}/{weather?.name}</Text>
-                <Text>Lämpötila:{weather?.temp}</Text>
-                <Text>tuuli m/s:{weather?.windSpeed}</Text>
-                <Text>Max/Min C{weather?.highestTemp}/{weather?.lowestTemp}</Text>
+            <View style={styles.weatherContainer}>
+                <Text style={styles.text}>Maa/kaupunki: {country}/{city}</Text>
+                <Text style={styles.text}>Lämpötila:{temp}C</Text>
+                <Text style={styles.text}>tuuli: {windSpeed}m/s</Text>
+                <Text style={styles.text}>Max/Min: {maxTemp}C/{minTemp}C</Text>
 
             </View>
         </View>
@@ -68,19 +88,6 @@ const styles = StyleSheet.create({
     marginTop:50,
     backgroundColor: '#fff',
   },
-  list:{
-    backgroundColor: '#ffffffff',
-    borderBottomWidth: 1,
-    borderColor: '#ffffffff',
-    padding: 16,
-  },
-  rowBack: {
-    backgroundColor: '#ffffffff',
-    flex: 1,
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    paddingRight: 10,
-  },
   input:{
     margin:5,
     width:200,
@@ -89,6 +96,14 @@ const styles = StyleSheet.create({
     borderWidth:1,
   },
   text:{
+    margin:3,
+    fontSize:20,
+
+  },weatherContainer:{
+    
+    marginTop:10,
+    backgroundColor:'#0000002f',
+   borderRadius:2,
 
   },
   inputContainer:{
